@@ -1,0 +1,167 @@
+\documentstyle[11pt]{article}
+\parindent=0cm
+\setlength{\textwidth}{16.0cm}
+\topmargin-0.5cm
+\textheight22.7cm
+\oddsidemargin0cm
+\evensidemargin0cm
+
+\begin{document}
+
+\section*{GENREG-manual}
+
+To generate the connected $k$-regular graphs on $n$ vertices
+call {\bf genreg n k}. To obtain only those graphs with girth 
+$\ge t$, you must append $t$ as another parameter, therefore
+{\bf genreg n k t}. To control the output you may use the
+following options:
+\begin{itemize}
+ \item[\bf -a]
+  The \underline{a}djacencylists of the generated graphs are
+  written to an ASCII-file with suffix \verb|.asc|. There is
+  also the girth, a set of generators of the automorphismgroup
+  and its order specified. For example when calling 
+  {\bf genreg 4 3 -a} you obtain the file \verb|04_3_3.asc| with the content:
+  \begin{verbatim}
+  Graph 1:
+
+  1 : 2 3 4
+  2 : 1 3 4
+  3 : 1 2 4
+  4 : 1 2 3
+  Taillenweite: 3
+
+  3 : 1 2 4 3
+  2 : 1 3 2 4
+  2 : 1 4 3 2
+  1 : 2 1 3 4
+  1 : 3 2 1 4
+  1 : 4 2 3 1
+  Ordnung: 24 \end{verbatim}
+  At first the adjacencylist is given. In every line there are
+  behind the colon the neighbours of the vertex in front
+  of the colon. Then we have the girth and afterwards in every
+  line an automorphism $\pi$. Before the colon there is 
+  $\min\{j \in \underline{n}\ |\ \pi(j)\not=j \}$ and behind
+  we have at $i$-th position $\pi(i)$. The given generators
+  are representatives of the left cosets of a centralizer chain of the 
+  automorphismgroup (Sims chain).
+
+  If you declare an additional integer $x$, only the first $x$
+  graphs are put on the file. In this case the file will
+  probably not contain all the Graphs for given $n$, $k$ and $t$.
+  Therefore the filename is marked by an additional 
+  \verb|-U| (for \underline{u}nfinished),
+  e.g. with {\bf genreg 6 3 -a 1} you obtain the file
+  \verb|06_3_3-U.asc|.
+
+  If the option {\bf -a} is followed by {\bf stdout}, the output
+  is not written to a file, but to {\em stdout}. 
+ 
+ \item[\bf -s]
+  The generated graphs are written to a binary file with the suffix
+  \verb|.scd|. The following coding (\underline{s}hortcode) is used:
+
+  One after the other all vertices $1,...,n$ are regarded. Only
+  adjacent vertices with larger number than the regarded vertex itself
+  are added to the code.
+  Thus we have for every edge of the graph exactly
+  one entry in the code. For the example above ($n=4$, $k=3$) you
+  get 
+ 
+  \hspace{1cm}{\tt 2 3 4 3 4 4} 
+
+  as code. 
+  To achieve a further compression of the data, we compare
+  the code of the next graph to be constructed with the 
+  preceeding and find out, in how many entries at the begining
+  the two codes are equal. Instead of writing the common
+  pieces twice on the file, we only store its length and
+  then the differing entries. Thus as first entry of the file
+  we always have zero. The 4-regular graphs on 7 vertices
+  have the codes 
+  
+  \hspace{1cm} {\tt 2 3 4 5 3 4 5 6 7 6 7 6 7 7} and
+
+  \hspace{1cm} {\tt 2 3 4 5 3 4 6 5 7 6 7 6 7 7}
+
+  The file {\bf \verb|07_4_3.scd|} consists of 
+    
+  \hspace{1cm}{\tt 0 2 3 4 5 3 4 5 6 7 6 7 6 7 7 6 6 5 7 6 7 6 7 7}
+
+  and has length of 24 byte. This kind of comprimation gains effectivity for
+  big $n$ or $t>3$. The program {\em readscd.c}  shows easy funktions,
+  which are able to read shortcode-files. 
+%  Meanwhile the code should
+%  be absolutely the same as the shortcode of Gunnar Brinkmann's 
+%  {\em minibaum}. 
+
+  Even this option can be followed by an integer or {\bf stdout} if
+  only a certain number of graphs shall be stored or you want to use
+  {\em stdout}.  
+
+  \item[\bf -e]
+  The parameters $n$, $k$ and $t$, the number of generated graphs 
+  and the required CPU-time are written to a file with suffix 
+  \verb|.erg|. Call of {\bf genreg 21 4 5 -e} produces a file named
+  \verb|21_4_5.erg| containing 
+  \begin{verbatim}
+          GENREG - Generator fuer regulaere Graphen
+          21 Knoten, Grad 4, Taillenweite mind. 5
+          Erzeugung gestartet...
+          8 Graphen erzeugt.
+          Laufzeit:20.9s  0.4 Repr./s \end{verbatim}
+  As long as the construction is not finished, this file has the
+  name \verb|21_4_5-U.erg| (and of course the last two lines are
+  missing).
+
+  If option {\bf -e} is not used, GENREG writes these informations
+  to {\em stderr}.
+
+  \item[-c]
+  During the execution of the program the generated graphs are 
+  \underline{c}ounted and the number is written to {\em stderr} with
+  short intervals.
+  If option {\bf -e} is used, GENREG writes this information
+  to the \verb|.erg|-File.
+\end{itemize}
+
+In cases of very  big problems to be computed, the following
+\underline{m}odulo-option is available to split the problem
+into several jobs, therewith it can be worked {\em parallel}
+on different machines.
+\begin{itemize}
+ \item[\bf -m]
+  This option must be followed by two integers $i$ and $j$, 
+  $1\le i\le j$. It is used to split the problem into $j$ parts.
+  Call of {\bf genreg 20 3 -s -m 1 2} causes the program
+  to compute only the first of two parts. The code of the graphs
+  is written to a file named \verb|20_3_3-1.scd|. When the 
+  generation is finished, it is renamed to \verb|20_3_3#1.scd|.
+  The remaining graphs can be computed with {\bf genreg 20 3 -s -m 2 2}.
+
+  Remarks:
+ 
+  \begin{itemize}
+   \item
+    The program is designed to run on UNIX machines.
+    To preserve compatibility to other operationsystems 
+    (OS/2, DOS), filenames are chosen to have
+    length at most eight. {\bf genreg 20 3 -s -m 1 2} and
+    {\bf genreg 20 3 -s -m 1 3} produce files with the same
+    name and differing content.
+
+   \item
+    As long as the number of jobs $j$ is not to large, the 
+    single parts should take about equal time and produce about
+    equally many output. In very big problems, especially
+    with girth $>3$ deviation to this fact may occur.  
+    In such cases contact the author 
+    (markus@btm2x2mat.uni-bayreuth.de) 
+    to decide wether a little tuning will solve the problem
+    or it is really hopeless out of  range.
+  \end{itemize}
+\end{itemize}  
+\end{document}  
+  
+ 

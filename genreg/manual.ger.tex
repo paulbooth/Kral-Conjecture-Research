@@ -1,0 +1,170 @@
+\documentstyle[dina4,12pt,german]{article}
+\begin{document}
+
+\parindent0mm
+
+\section*{GENREG-Manual}  
+
+\medskip
+Um die zusammenh"angenden $k$-regul"aren Graphen mit $n$ Knoten zu erzeugen,
+mu"s {\bf genreg n k} aufgerufen werden. Um nur solche Graphen
+mit Taillenweite $\geq t$ zu erhalten, kann $t$ als weiterer
+Parameter angef"ugt werden, also {\bf genreg n k t}. F"ur
+die Steuerung der Ausgabe stehen folgende Optionen zur Verf"ugung:
+
+\begin{itemize}
+
+ \item[\bf -a]
+  Die Nachbarschaftslisten der erzeugten Graphen werden in ein
+  ASCII-File mit Endung {\bf \verb|.asc|} geschrieben. Weiter wird
+  die Taillenweite, ein Erzeugendensystem der Automorphismengruppe
+  und deren Ordnung angegben. Beispielsweise wird bei Aufruf von
+  {\bf genreg 4 3 -a} das File {\bf \verb|04_3_3.asc|}
+  mit folgendem Inhalt erzeugt:
+  \begin{verbatim}
+  Graph 1:
+
+  1 : 2 3 4
+  2 : 1 3 4
+  3 : 1 2 4
+  4 : 1 2 3
+  Taillenweite: 3
+
+  3 : 1 2 4 3
+  2 : 1 3 2 4
+  2 : 1 4 3 2
+  1 : 2 1 3 4
+  1 : 3 2 1 4
+  1 : 4 2 3 1
+  Ordnung: 24
+  \end{verbatim}Zuerst wird die Nachbarschaftsliste ausgegeben. In jeder Zeile
+  stehen nach dem Doppelpunkt in aufsteigender Reihenfolge die
+  Nachbarn des Knoten vor dem Doppelpunkt.
+
+  Der Nachbarschaftsliste
+  folgt die Taillenweite und danach in jeder Zeile ein Automorphismus
+  $\pi$.
+  Vor dem Doppelpunkt steht jeweils
+  $\min \{ j \in \underline{n}\ |\ \pi (j) \not= j \} $
+  und nach dem Doppelpunkt steht an $i$-ter Position $\pi (i)$.
+  Es handelt sich dabei um Transversalenelemente der Linksnebenklassen einer
+  Zentralisatorkette der Automorphismengruppe (Simskette).
+
+  Gibt man zus"atzlich eine Zahl $x$ an,
+  so werden nur die ersten $x$ Graphen gespeichert,
+  und dann das File geschlossen. Da solche Files u.U. nicht alle
+  Graphen zu gegebenen $n$,$k$ und $t$ enthalten,
+  werden deren Filenamen mit einem
+  {\bf \verb|-U|} (f"ur \glqq unvollst"andig\grqq ) gekennzeichnet.
+  {\bf genreg 6 3 -a 1} liefert also
+  das File {\bf \verb|06_3_3-U.asc|}.
+
+  Wird die Option gefolgt von {\bf stdout}, dann wird kein File
+  erzeugt, sondern auf die Standardausgabe geschrieben.
+
+ \item[\bf -s]
+  Die erzeugten Graphen werden in ein bin"ares File mit Endung
+  {\verb|.scd|} geschrieben. Dabei wird folgende Kodierung (Shortcode)
+  verwendet:
+
+  Es werden nacheinander Knoten 1 bis $n$ betrachtet.
+  Nur benachbarte Knoten mit gr"o"serer Nummer werden aufgeschrieben.
+  Somit wird f"ur jede Kante genau ein Eintrag vorgenommen. Im
+  obigen Beispiel ($n=4$, $k=3$) erh"alt man den Code
+
+  \hspace{1cm}{\tt 2 3 4 3 4 4}.
+
+  Um bei einer gro"sen Anzahl von Graphen
+  die anfallende Datenmenge weiter zu komprimieren,
+  vergleicht man den Code des n"achsten erzeugten Graphen mit dem
+  vorhergehenden und stellt fest, bis zu welcher Stelle die
+  beiden Codes identisch sind. Anstatt nun dieses gemeinsame Anfangsst"uck
+  wiederholt abzuspeichern, wird lediglich dessen L"ange und
+  anschlie"send das sich unterscheidende Endst"uck auf File geschrieben.
+  Dem Code des ersten Graphen wird somit eine Null vorangestellt.
+  Die 4-regul"aren Graphen mit 7 Knoten haben die Codes
+
+  \hspace{1cm} {\tt 2 3 4 5 3 4 5 6 7 6 7 6 7 7} und
+
+  \hspace{1cm} {\tt 2 3 4 5 3 4 6 5 7 6 7 6 7 7}
+
+  File {\bf \verb|07_4_3.scd|} hat den Inhalt
+
+  \hspace{1cm}{\tt 0 2 3 4 5 3 4 5 6 7 6 7 6 7 7 6 6 5 7 6 7 6 7 7}
+
+  Diese Art der Komprimierung gewinnt vor allem bei gro"sem
+  $n$ oder $t\! >\! 3$ an Effektivit"at. Das C-Programm {\bf readscd.c}
+  enth"alt Routinen, die Shortcode-Files lesen und die Nachbarschaftslisten
+  der gespeicherten Graphen ausgeben.
+
+  Auch diese Option kann von einer Zahl bzw. {\bf stdout}
+  gefolgt werden,
+  falls nur eine bestimmte Anzahl von Graphen gespeichert, bzw.
+  die Standardausgabe benutzt werden soll.
+
+ \item[\bf -e]
+  Die Parameter $n$,$k$ und $t$, die Anzahl der erzeugten Graphen
+  und die ben"otigte CPU-Zeit werden in ein File mit
+  Endung {\bf \verb|.erg|} geschrieben.
+  {\bf genreg 21 4 5 -e} liefert das File {\bf \verb|21_4_5.erg|}
+  mit dem Inhalt
+  \begin{verbatim}
+	  GENREG - Generator fuer regulaere Graphen
+	  21 Knoten, Grad 4, Taillenweite mind. 5
+	  Erzeugung gestartet...
+	  8 Graphen erzeugt.
+	  Laufzeit:20.9s  0.4 Repr./s \end{verbatim}
+  Solange die Erzeugung noch nicht abgeschlossen ist, tr"agt dieses File
+  den Namen {\bf \verb|21_4_5-U.erg|} (und nat"urlich fehlen
+  die beiden letzten Zeilen).
+
+  Wird die Option nicht verwendet, dann schreibt GENREG
+  diese Angaben auf die Standardfehlerausgabe.
+
+ \item[\bf -c]
+  W"ahrend des Programmlaufs wird die Anzahl der bereits erzeugten
+  Graphen ausgegeben. Je nachdem, ob Option {\bf -e}
+  benutzt wird, schreibt GENREG diese Angabe in das File
+  mit Endung {\bf \verb|.erg|} oder auf die Standardfehlerausgabe.
+
+\end{itemize}
+
+F"ur den Fall, da"s sehr gro"se Probleme bearbeitet werden sollen
+und mehrere Rechner zur Verf"ugung stehen, kann folgende
+\glqq modulo\grqq -Option verwendet werden:
+
+\begin{itemize}
+
+ \item[\bf -m]
+ Diese Option mu"s von zwei Zahlen i und j gefolgt werden,
+ und dient dazu die Erzeugung in j Teile aufzuspalten.
+ Aufruf von {\bf genreg 20 3 -s -m 1 2} bewirkt, da"s
+ der erste von zwei Teilen abgearbeitet wird. Die Codes
+ der Graphen werden in ein File mit Namen {\bf \verb|20_3_3-1.scd|}
+ geschrieben. Sind alle Graphen gespeichert, wird es umbenannt in
+ {\bf \verb|20_3_3#1.scd|}. Die "ubrigen Graphen erh"alt
+ man mit {\bf genreg 20 3 -s -m 2 2}.
+
+ Anmerkungen:
+
+ \begin{itemize}
+  \item
+   Damit GENREG auch unter verschiedenen Betriebssystemen
+   lauff"ahig bleibt,
+   wurden alle Filenamen so gew"ahlt, da"s ihre L"ange
+   acht Zeichen nicht "uberschreitet. {\bf genreg 20 3 -s -m 1 2}
+   und {\bf genreg 20 3 -s -m 1 3} produzieren Files mit
+   gleichen Namen, aber verschiedenem Inhalt.
+  \item
+   Solange die Anzahl j der Teile nicht zu gro"s wird,
+   sollten die einzelnen Teile etwa gleich viel Rechnerzeit
+   ben"otigen und gleich viele Graphen erzeugen. Bei
+   sehr gro"sen Problemen, insbesondere mit Taillenweite $>3$,
+   kann es vorkommen, da"s dies nicht mehr gew"ahrleistet ist.
+   In solchen F"allen sollte man sich mit dem Autor in Verbindung
+   setzen (markus@btm2x2mat.uni-bayreuth.de).
+ \end{itemize}
+
+\end{itemize}
+\end{document}
+
