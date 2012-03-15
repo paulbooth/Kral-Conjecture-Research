@@ -4,7 +4,6 @@
 # There are 40497138011 non-isomorphic 3-regular graphs on 28 vertices.
 # Author: Paul Booth (thepaulbooth@gmail.com)
 
-import autolabel
 from copy import deepcopy
 
 # the filename of the scd file.
