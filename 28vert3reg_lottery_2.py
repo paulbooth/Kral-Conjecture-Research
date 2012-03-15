@@ -68,7 +68,7 @@ def main(originalnum,num, superawesomecounter=0):
                         if hole not in labels:
                             numholes+=1
                     if lnum>=6 and numholes>=3:
-                        adj=str(adjacencymatrix(cgraph.get_vertices(),cgraph.edges))
+                        adj=str(adjacencymatrix(cgraph.get_vertices(),cgraph.edges)) # TODO: uhh... I think broken. .get_vertices? .edges? no. is a spm now
                         with open('C:\\My Dropbox\\GPGlabelings\\graph program 26\\found'+str(originalnum)+'.txt','a') as res:            
                             res.write(adj)
                         print "WOOOOOOOOOOOOOO:"
